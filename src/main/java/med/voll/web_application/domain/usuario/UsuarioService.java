@@ -1,6 +1,7 @@
 package med.voll.web_application.domain.usuario;
 
 import med.voll.web_application.domain.RegraDeNegocioException;
+import med.voll.web_application.domain.usuario.email.EmailService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,9 +17,12 @@ public class UsuarioService implements UserDetailsService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder encriptador;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder encriptador) {
+    private final EmailService emailService;
+
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder encriptador, EmailService emailService) {
         this.usuarioRepository = usuarioRepository;
         this.encriptador = encriptador;
+        this.emailService = emailService;
     }
 
     @Override
@@ -61,5 +65,7 @@ public class UsuarioService implements UserDetailsService {
         usuario.setExpiracaoToken(LocalDateTime.now().plusMinutes(15));
 
         usuarioRepository.save(usuario);
+
+        emailService.enviarEmailSenha(usuario);
     }
 }
